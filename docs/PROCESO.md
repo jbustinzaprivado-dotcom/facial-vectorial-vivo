@@ -157,6 +157,24 @@ análisis técnico), no dentro del propio motor de reconocimiento. Mantener a es
 rol único y acotado es justamente lo que permite que ese otro proceso (o sistema) se construya
 después, sobre datos confiables, sin tener que reabrir ni expandir este.
 
+### D13 — Determinar puntualidad (temprano/tarde) también queda fuera de este sistema
+
+Pregunta del equipo, misma familia que D12: este sistema solo distingue dos resultados —
+**registrado** o **no registrado** — y nunca dice si la persona llegó temprano o tarde. ¿Debería
+resolverse eso en un sistema aparte, que tome la `marca_tiempo` del registro vectorial y la
+compare contra el horario del cliente de curso/practicante?
+
+**Respuesta: sí, viable, y es la extensión natural de D12.** Este sistema solo tiene un dato: el
+instante exacto del evento (RF6/D7). No tiene, ni debería tener, la **hora esperada** contra la
+cual comparar ese instante — y ese dato ni siquiera vive en un solo lugar: para practicantes está
+en el sistema externo (RF8/D9); para clientes del curso, el horario de su curso no está modelado
+en ningún lugar de este proyecto todavía. Calcular "temprano/tarde" exige cruzar ambas fuentes más
+una regla de negocio (margen de tolerancia, por ejemplo), que es trabajo de interpretación, no de
+reconocimiento. Generalizando D12: **cualquier lectura del evento entrada/salida contra un
+calendario u horario externo (asistencia a una clase, puntualidad, horas trabajadas) es un
+concern aparte, construido sobre los eventos que este sistema expone — nunca dentro del motor de
+reconocimiento.**
+
 ### D2 — Modelo de despliegue: kiosco local dedicado
 
 El reconocimiento facial corre en un equipo físico instalado en el local (kiosco local
