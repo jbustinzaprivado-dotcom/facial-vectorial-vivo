@@ -96,15 +96,19 @@ marca de cierre de jornada.
 **RF8 — Tipos de usuario / roles**
 El sistema debe reconocer distintos tipos de persona, cada uno con sus propias características
 de permanencia en la instalación:
-- **Practicantes:** realizan una jornada diaria de 4 a 8 horas. Su información se gestiona y
+- **Practicantes:** realizan una jornada diaria de 2 a 12 horas. Su información se gestiona y
   actualiza a través de un sistema externo ya existente, con el cual este proyecto se integra
   (ver D9).
-- **Clientes del curso:** personas que pagaron un curso específico y permanecen entre 4 y 6
+- **Clientes del curso:** personas que pagaron un curso específico y permanecen entre 2 y 8
   horas dentro del local mientras lo cursan.
 
 Ambos tipos de persona conviven dentro de la misma instalación/empresa: los clientes de curso
 asisten a aprender el curso que pagaron, mientras que los practicantes desarrollan software,
 diseño u otras funciones de apoyo a la empresa.
+
+> **Corrección posterior a RF8:** los rangos horarios se ampliaron de 4-8h a **2-12h**
+> (practicantes) y de 4-6h a **2-8h** (clientes del curso), para cubrir casos de jornadas más
+> cortas o más largas que las inicialmente previstas.
 
 ### D2 — Modelo de despliegue: kiosco local dedicado
 
