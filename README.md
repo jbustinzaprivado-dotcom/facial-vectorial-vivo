@@ -10,5 +10,7 @@ automáticamente su entrada o salida de la instalación.
 
 - [`docs/CONTEXTO.md`](docs/CONTEXTO.md) — documento de requisitos sobre el que se apoya todo el
   proyecto.
+- [`docs/CONTEXTO.pdf`](docs/CONTEXTO.pdf) — mismo contenido, en formato visual (tarjetas y
+  diagramas).
 - [`docs/PROCESO.md`](docs/PROCESO.md) — registro vivo de decisiones (requisitos + análisis
   técnico: stack, arquitectura, hardware, modelo de datos).
