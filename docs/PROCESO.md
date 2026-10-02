@@ -110,6 +110,53 @@ software, diseño u otras funciones de apoyo a la empresa.
 > (practicantes) y de 4-6h a **2-8h** (clientes del curso), para cubrir casos de jornadas más
 > cortas o más largas que las inicialmente previstas.
 
+**RF9 — Tiempo de espera entre registros (cooldown) [Añadido]**
+Una vez que el sistema registra exitosamente a una persona (su entrada), debe esperar al menos
+**30 minutos** desde ese registro antes de permitir un nuevo registro para esa misma persona —
+ese segundo registro, cumplidos los 30 minutos, se guarda como su salida (RF6). Si la persona
+vuelve a aparecer frente a la cámara **antes** de cumplirse los 30 minutos, el sistema sí la
+reconoce (no la trata como desconocida), pero no genera un nuevo evento: en su lugar, muestra un
+mensaje indicando que ya está registrada y la hora a partir de la cual puede volver a hacerlo
+(confirmado con el equipo: no se usa el mensaje de "no registrado" para este caso, para no
+confundir a la persona haciéndole creer que no está en el sistema).
+
+**RF10 — Límite diario de registros [Añadido]**
+Una persona no puede registrarse más de **3 veces** en el mismo día. Al alcanzar ese límite, el
+sistema deja de reconocerla por el resto del día: cualquier intento posterior se trata y se
+muestra igual que un rostro no registrado (RF4), sin importar que sí sea una persona conocida.
+Solo cuentan para este límite los registros que efectivamente quedan guardados como evento
+(confirmado con el equipo) — un intento bloqueado por el cooldown de RF9 no suma al conteo.
+
+### D11 — RF9/RF10 se verifican en el backend central, no en el kiosco
+
+Mismo criterio ya establecido para la decisión entrada/salida (sección de arquitectura del
+análisis técnico): el kiosco solo reporta "persona X reconocida a las HH:MM:SS"; es el backend
+central quien consulta el historial real de eventos de esa persona en el día y decide si el
+registro se guarda, si corresponde mostrar el mensaje de cooldown (RF9), o si ya alcanzó el
+límite diario (RF10). Esto evita inconsistencias si el kiosco estuvo offline y su estado local
+quedó desactualizado.
+
+### D12 — Verificar asistencia a una clase específica queda fuera de este sistema
+
+Duda planteada por el equipo: el sistema registra entrada/salida de la instalación, pero no sabe
+nada sobre cursos, horarios de clase ni matrícula — ¿hace falta otro sistema para determinar si
+una persona asistió a la clase X?
+
+**Respuesta: sí, es un concern distinto, y no es contradictorio dejarlo fuera de este sistema —
+es la misma separación de responsabilidades que ya se aplica en D11.** Este sistema responde una
+sola pregunta: "¿la persona P estuvo físicamente en la instalación entre tal hora y tal hora,
+hoy?". Responde eso porque un kiosco de reconocimiento facial no tiene (ni debería tener) noción
+de cursos, horarios ni matrícula — igual que ya se decidió que el kiosco no decide entrada/salida
+(D11), ni aprende con el uso (D1). Determinar "¿asistió a la clase X?" exige cruzar estos eventos
+de entrada/salida con datos que este sistema no tiene: el horario de esa clase, quién está
+matriculado en ella, y una regla de negocio sobre cuánto tiempo dentro de esa ventana cuenta como
+"asistió". Eso es trabajo de otro proceso — no necesariamente un sistema nuevo y separado en el
+sentido de otro despliegue, pero sí una capa de interpretación distinta, construida sobre los
+eventos que este sistema expone (vía su futura API de consulta, ver sección de pendientes del
+análisis técnico), no dentro del propio motor de reconocimiento. Mantener a este sistema con un
+rol único y acotado es justamente lo que permite que ese otro proceso (o sistema) se construya
+después, sobre datos confiables, sin tener que reabrir ni expandir este.
+
 ### D2 — Modelo de despliegue: kiosco local dedicado
 
 El reconocimiento facial corre en un equipo físico instalado en el local (kiosco local

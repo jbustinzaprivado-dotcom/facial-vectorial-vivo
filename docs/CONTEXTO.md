@@ -93,6 +93,22 @@ Ambos tipos de persona conviven dentro de la misma instalación de **BeatC**: lo
 curso asisten a aprender el curso que pagaron, mientras que los practicantes desarrollan
 software, diseño u otras funciones de apoyo a la empresa.
 
+**RF9 — Tiempo de espera entre registros (cooldown)**
+Una vez que el sistema registra exitosamente a una persona (su entrada), debe esperar al menos
+**30 minutos** desde ese registro antes de permitir un nuevo registro para esa misma persona —
+ese segundo registro, cumplidos los 30 minutos, se guarda como su salida (RF6). Si la persona
+vuelve a aparecer frente a la cámara **antes** de cumplirse los 30 minutos, el sistema sí la
+reconoce (no la trata como desconocida), pero no genera un nuevo evento: en su lugar, muestra un
+mensaje indicando que ya está registrada y la hora a partir de la cual puede volver a hacerlo
+(p. ej. "Ya registrado, intente su salida después de las HH:MM").
+
+**RF10 — Límite diario de registros**
+Una persona no puede registrarse más de **3 veces** en el mismo día. Al alcanzar ese límite, el
+sistema deja de reconocerla por el resto del día: cualquier intento posterior se trata y se
+muestra igual que un rostro no registrado (RF4), sin importar que sí sea una persona conocida.
+Solo cuentan para este límite los registros que efectivamente quedan guardados como evento — un
+intento bloqueado por el cooldown de RF9 no suma al conteo.
+
 ## Resumen del ciclo operativo
 
 ```
