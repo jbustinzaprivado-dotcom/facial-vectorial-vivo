@@ -11,10 +11,10 @@ decisiones que surgieron durante el desarrollo y no estaban en el pedido origina
 
 ### Objetivo del proyecto
 
-Desarrollar un sistema que identifique automáticamente, en tiempo real y sin intervención
-humana, a personas previamente registradas en una base de datos, mediante el análisis vectorial
-de su rostro capturado por una cámara en vivo, registrando tanto su hora de entrada como de
-salida a una instalación.
+Desarrollar, para **BeatC**, un sistema que identifique automáticamente, en tiempo real y sin
+intervención humana, a personas previamente registradas en una base de datos, mediante el
+análisis vectorial de su rostro capturado por una cámara en vivo, registrando tanto su hora de
+entrada como de salida a su instalación.
 
 ### D1 — Mecanismo de reconocimiento: análisis vectorial, no un sistema que aprende
 
@@ -102,9 +102,9 @@ de permanencia en la instalación:
 - **Clientes del curso:** personas que pagaron un curso específico y permanecen entre 2 y 8
   horas dentro del local mientras lo cursan.
 
-Ambos tipos de persona conviven dentro de la misma instalación/empresa: los clientes de curso
-asisten a aprender el curso que pagaron, mientras que los practicantes desarrollan software,
-diseño u otras funciones de apoyo a la empresa.
+Ambos tipos de persona conviven dentro de la misma instalación de **BeatC**: los clientes de
+curso asisten a aprender el curso que pagaron, mientras que los practicantes desarrollan
+software, diseño u otras funciones de apoyo a la empresa.
 
 > **Corrección posterior a RF8:** los rangos horarios se ampliaron de 4-8h a **2-12h**
 > (practicantes) y de 4-6h a **2-8h** (clientes del curso), para cubrir casos de jornadas más

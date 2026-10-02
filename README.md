@@ -1,8 +1,8 @@
 # Sistema de Análisis Facial Vectorial en Vivo
 
-Sistema de reconocimiento biométrico facial en tiempo real: analiza el rostro de una persona
-frente a una cámara mediante comparación vectorial (no aprendizaje automático) y registra
-automáticamente su entrada o salida de la instalación.
+Sistema de reconocimiento biométrico facial en tiempo real desarrollado para **BeatC**: analiza
+el rostro de una persona frente a una cámara mediante comparación vectorial (no aprendizaje
+automático) y registra automáticamente su entrada o salida de la instalación.
 
 ## Estado
 

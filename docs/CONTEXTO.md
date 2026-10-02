@@ -10,7 +10,7 @@ arquitectura, hardware, modelo de datos) vive por separado en [`PROCESO.md`](./P
 
 ## Planteamiento original
 
-Una empresa busca un sistema de reconocimiento biométrico facial que analice el rostro de una
+**BeatC** busca un sistema de reconocimiento biométrico facial que analice el rostro de una
 persona a tiempo real mediante una cámara, y que automáticamente registre quién es, cuando esa
 persona ya fue registrada anteriormente en el sistema.
 
@@ -89,9 +89,9 @@ de permanencia en la instalación:
 - **Clientes del curso:** personas que pagaron un curso específico y permanecen entre 2 y 8
   horas dentro del local mientras lo cursan.
 
-Ambos tipos de persona conviven dentro de la misma instalación/empresa: los clientes de curso
-asisten a aprender el curso que pagaron, mientras que los practicantes desarrollan software,
-diseño u otras funciones de apoyo a la empresa.
+Ambos tipos de persona conviven dentro de la misma instalación de **BeatC**: los clientes de
+curso asisten a aprender el curso que pagaron, mientras que los practicantes desarrollan
+software, diseño u otras funciones de apoyo a la empresa.
 
 ## Resumen del ciclo operativo
 
