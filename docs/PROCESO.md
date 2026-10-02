@@ -202,10 +202,11 @@ RESULTADO EN PANTALLA (3 segundos — RF3)
 vuelve a ESPERA
 ```
 
-**Supuesto asumido, pendiente de confirmación:** si aparece más de un rostro en cámara, el
-sistema procesa el más prominente (mayor tamaño / más cercano) e ignora el resto —
-consistente con que el diseño físico del kiosco (punto único de paso) ya limita esto en la
-práctica (RF3).
+**D10 — Selección de rostro cuando hay más de uno en cámara (confirmado con el equipo):** si
+aparecen varios rostros frente a la cámara al mismo tiempo, el sistema procesa el **más
+prominente** (mayor tamaño / más cercano a la cámara) y lo analiza, ignorando los demás hasta
+que vuelva a quedar uno solo. No se descarta esta situación como imposible por el diseño físico
+del kiosco — el software debe manejarla explícitamente.
 
 ### D7 — Modelo de datos (esbozo, sujeto a diseño detallado en la siguiente fase)
 
@@ -241,7 +242,6 @@ a programar.
 - Especificaciones concretas de la API externa de practicantes (autenticación, endpoints,
   frecuencia de sincronización razonable).
 - Selección final de hardware concreto (modelo exacto de mini-PC, modelo de cámara).
-- Confirmación del supuesto de D6 sobre selección de rostro cuando hay más de uno en cámara.
 - Diseño detallado de base de datos (tablas, migraciones) — próxima fase.
 - Plan de implementación por fases (scaffolding backend/kiosco, motor facial, integración,
   pruebas, despliegue).
