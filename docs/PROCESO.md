@@ -388,7 +388,7 @@ cliente de curso o a un practicante, cada intento de reconocimiento necesitaría
 dos APIs**, salvo que exista (o se construya) un punto de verificación único que cubra ambas
 poblaciones. Pendiente de confirmar con quien mantiene esos dos sistemas.
 
-### D17 — Lenguaje: PHP declarado como requisito; aislamiento vía API hace viable Python para el motor
+### D17 — Lenguaje: motor de reconocimiento en Python aislado tras API (confirmado)
 
 BeatC indicó que el sistema debe estar desarrollado en PHP, por consistencia con el resto de su
 ecosistema (también en PHP). Pregunta del equipo: ¿causaría problemas de compatibilidad construir
@@ -407,10 +407,10 @@ investigación de otra conversación, pero con mucho menos mantenimiento y comun
 Python ya validado en D3) — mayor riesgo de mantenimiento a largo plazo para un sistema
 biométrico en producción.
 
-**Recomendación:** motor de reconocimiento en Python (D3, sin cambios) detrás de una API HTTP;
-el resto del ecosistema de BeatC permanece en PHP. **Pendiente de decisión final del equipo** —
-si hay un mandato organizacional de PHP sin excepciones, `php-opencv` es viable pero con más
-riesgo.
+**Decisión confirmada por el equipo:** motor de reconocimiento en Python (D3, sin cambios) detrás
+de una API HTTP; el resto del ecosistema de BeatC permanece en PHP. El motor nunca comparte
+código, proceso ni base de datos con los sistemas PHP — solo expone/consume HTTP, así que esta
+elección no introduce ningún problema de compatibilidad con el resto del ecosistema.
 
 ### D18 — Qué sobrevive del backend central tras D15/D16 (arquitectura y modelo de datos final)
 
@@ -483,14 +483,14 @@ Documentación pura, igual que la Fase 0 — ningún archivo de código fue escr
 
 ### Pendiente
 
-- Especificaciones concretas de las dos APIs externas (autenticación, endpoints, frecuencia de
-  sincronización, y si exponen o no un endpoint de verificación por vector — D15).
-- Decisión final: ¿verificación local con caché (D4) o remota sin caché (D15)? Recomendación
-  dada, decisión pendiente del equipo.
-- Decisión final: ¿motor en Python tras API, o todo en PHP con `php-opencv` (D17)? Recomendación
-  dada, decisión pendiente del equipo.
-- Si hace falta un punto de verificación único para las dos poblaciones (D16), o si este sistema
-  debe consultar ambas APIs en cada intento.
+- **La conexión con los 2 sistemas externos sigue sin aclarar (bloqueante confirmado por el
+  equipo — no se avanza en la integración hasta resolverlo):**
+  - Especificaciones concretas de ambas APIs (autenticación, endpoints, frecuencia).
+  - Si exponen o no un endpoint de verificación por vector — de eso depende si D15
+    (verificación remota, sin caché local) es realmente viable tal cual está planteada, o si
+    hace falta volver a D4 (caché local).
+  - Si hace falta un punto de verificación único para las dos poblaciones (D16), o si este
+    sistema debe consultar ambas APIs en cada intento.
 - Selección final de hardware concreto — ahora en contexto de D14 (PC de recepción compartida,
   no un equipo dedicado).
 - Fuente y formato de los videos publicitarios para RF11 (¿local, streaming, actualizable por
