@@ -402,6 +402,14 @@ cliente de curso o a un practicante, cada intento de reconocimiento necesitaría
 dos APIs**, salvo que exista (o se construya) un punto de verificación único que cubra ambas
 poblaciones. Pendiente de confirmar con quien mantiene esos dos sistemas.
 
+> **Pendiente a aclarar [Añadido]:** el equipo marcó que consultar las 2 APIs en cada intento es
+> **muy ineficiente** tal como está planteado — duplica la búsqueda vectorial en cada
+> reconocimiento. Idea propuesta por el equipo, sin resolver todavía: una **etiqueta única por
+> API**, asociada al id que cada sistema externo ya devuelve, para poder distinguir/enrutar entre
+> poblaciones sin tener que preguntarles a las dos cada vez. No se diseña esta solución ahora —
+> queda como punto abierto hasta que se defina junto con las especificaciones reales de ambas
+> APIs (ver sección Pendiente).
+
 ### D17 — Lenguaje: motor de reconocimiento en Python aislado tras API (confirmado)
 
 BeatC indicó que el sistema debe estar desarrollado en PHP, por consistencia con el resto de su
@@ -504,7 +512,9 @@ Documentación pura, igual que la Fase 0 — ningún archivo de código fue escr
     (verificación remota, sin caché local) es realmente viable tal cual está planteada, o si
     hace falta volver a D4 (caché local).
   - Si hace falta un punto de verificación único para las dos poblaciones (D16), o si este
-    sistema debe consultar ambas APIs en cada intento.
+    sistema debe consultar ambas APIs en cada intento. **Marcado como muy ineficiente tal cual
+    está planteado** — idea propuesta, sin resolver: una etiqueta única por API asociada al id
+    que cada sistema externo devuelve, para evitar consultar a las dos siempre.
 - Selección final de hardware concreto — ahora en contexto de D14 (PC de recepción compartida,
   no un equipo dedicado).
 - Fuente y formato de los videos publicitarios para RF11 (¿local, streaming, actualizable por
