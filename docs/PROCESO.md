@@ -210,10 +210,13 @@ directamente sobre el frame (rectángulos, texto) y lo muestra en una ventana a 
 completa — sin frameworks de UI aparte (PyQt, Tkinter) ni navegador. Menos piezas, mismo
 resultado.
 
-**Backend central — FastAPI + PostgreSQL.** Gestiona personas, roles, eventos de
-entrada/salida, el cierre automático de las 23:00, y la integración con la API de practicantes.
-Mismo stack ya dominado por el equipo en proyectos anteriores; nada en los requisitos lo pone en
-duda.
+**Backend central — FastAPI + PostgreSQL.** Gestiona eventos de entrada/salida y el cierre
+automático de las 23:00. Mismo stack ya dominado por el equipo en proyectos anteriores; nada en
+los requisitos lo pone en duda.
+
+> **Corrección (ver D18):** este párrafo originalmente decía que el backend también "gestiona
+> personas" — eso ya no aplica. El backend central no mantiene una tabla propia de personas ni
+> de embeddings; ver D18 para el modelo de datos final.
 
 ### D4 — Arquitectura general
 
@@ -236,12 +239,12 @@ duda.
                                    └──────────────────────────┘
 ```
 
-**Decisión clave:** el kiosco **nunca envía video ni fotos** por red. Descarga periódicamente la
-lista de vectores (embeddings) de personas registradas desde el backend central y la mantiene
-en caché local — la comparación por coseno ocurre con latencia cero, sin depender de la red
-frame a frame (mismo criterio de privacidad de proyectos anteriores: solo viajan vectores,
-nunca imágenes). El kiosco solo llama a la red para **registrar un evento** (entrada o salida),
-algo poco frecuente comparado con el análisis de video.
+**Decisión clave:** el kiosco **nunca envía video ni fotos** por red — eso se mantiene. El resto
+de este diagrama (caché local de embeddings, sync periódico, backend central guardando
+"personas") **queda reemplazado por D15/D16/D18**: no hay caché local, el kiosco llama a las 2
+APIs externas para verificar cada vector en vivo, y el backend central solo guarda los eventos de
+entrada/salida que este proyecto genera — nunca una copia de los datos de referencia. El diagrama
+corregido está en D18.
 
 ### D5 — Hardware recomendado
 
@@ -260,7 +263,7 @@ ENFOQUE (cronómetro de 5s — RF5)
    │  rostro desaparece antes de 5s → vuelve a ESPERA
    │  rostro sostenido 5s completos
    ▼
-ANÁLISIS (comparación vectorial contra caché local)
+ANÁLISIS (envía el vector a verificar a las APIs externas — D15, ya no hay caché local)
    │
    ├─ coincide → ¿ya tiene entrada hoy sin salida?
    │      no  → registra ENTRADA
@@ -282,27 +285,41 @@ prominente** (mayor tamaño / más cercano a la cámara) y lo analiza, ignorando
 que vuelva a quedar uno solo. No se descarta esta situación como imposible por el diseño físico
 del kiosco — el software debe manejarla explícitamente.
 
-### D7 — Modelo de datos (esbozo, sujeto a diseño detallado en la siguiente fase)
+### D7 — Modelo de datos (esbozo original — reemplazado por D18)
 
-- **personas**: id, nombre, dni, tipo (`practicante` | `cliente_curso`), rostro_embedding, activo
+> **Corrección: ver D18.** Este esbozo incluía `rostro_embedding` dentro de `personas` — ese
+> campo contradice directamente a D15 (este sistema nunca guarda datos de referencia biométrica).
+> Se deja aquí tachado, no borrado, como registro de qué se pensó antes de D15:
+
+- ~~**personas**: id, nombre, dni, tipo (`practicante` | `cliente_curso`), rostro_embedding,
+  activo~~
 - **eventos_asistencia**: id, persona_id, tipo (`entrada`|`salida`), marca_tiempo,
-  cierre_automatico (bool)
+  cierre_automatico (bool) — esta parte sí sigue vigente, ver D18 para la versión final.
 - **cierre automático**: tarea programada diaria a las 23:00 que busca entradas del día sin
-  salida y las cierra con `cierre_automatico=true`
+  salida y las cierra con `cierre_automatico=true` — vigente, sin cambios.
 
-### D8 — Resiliencia sin conexión
+### D8 — Resiliencia sin conexión (alcance reducido — ver D18)
 
 Si el kiosco pierde conexión con el backend central, debe seguir reconociendo (usa su caché
 local de embeddings) y encolar los eventos pendientes en disco local, reintentando el envío
 cuando vuelva la conexión. Nunca debe detenerse por un corte de red momentáneo.
 
-### D9 — Integración con el sistema externo de practicantes
+> **Corrección:** con D15 (sin caché local), la parte de "seguir reconociendo sin conexión" ya
+> no es posible — sin red a las APIs externas, este sistema no puede identificar a nadie. Lo que
+> sí sobrevive: si la verificación tuvo éxito pero falla el registro del evento en el backend
+> central, ese evento se encola localmente y se reintenta. Ver D18.
+
+### D9 — Integración con el sistema externo de practicantes (reemplazado por D16)
 
 El sistema externo donde se gestionan los practicantes **tiene API disponible** (confirmado por
 el equipo). El backend central sincroniza periódicamente (o vía webhook, si el sistema externo
 lo soporta) la lista de practicantes activos y sus datos. Autenticación de esa API y frecuencia
 de sincronización quedan pendientes de definir en detalle cuando se tengan sus especificaciones
 concretas (ver sección Pendiente).
+
+> **Corrección:** esto asumía un solo sistema externo y un modelo de sincronización periódica de
+> toda la lista. D16 corrige ambas cosas: son **dos** sistemas externos, y bajo D15 no hay
+> sincronización masiva — cada verificación es una llamada en vivo, una persona a la vez.
 
 ### Cierre de la Fase 0
 
@@ -395,6 +412,71 @@ el resto del ecosistema de BeatC permanece en PHP. **Pendiente de decisión fina
 si hay un mandato organizacional de PHP sin excepciones, `php-opencv` es viable pero con más
 riesgo.
 
+### D18 — Qué sobrevive del backend central tras D15/D16 (arquitectura y modelo de datos final)
+
+D15 elimina la caché local de embeddings; D16 confirma que son dos sistemas externos. Esto deja
+una pregunta sin responder explícitamente hasta ahora: **¿sigue existiendo un backend central
+propio, y si sí, qué guarda?** Respuesta, para que no quede ambigüedad:
+
+**Sí, el backend central sigue existiendo** — pero su rol se reduce. Ya no es dueño de ningún
+dato biométrico ni de una tabla "personas" sincronizada desde los sistemas externos. Solo guarda
+lo que **este proyecto genera**: los eventos de entrada/salida (RF6, RF7, RF9, RF10 siguen
+siendo su responsabilidad exactamente como describe D11 — eso no cambia).
+
+```
+┌─────────────────────────┐
+│   PC DE RECEPCIÓN (D14)  │
+│                          │
+│  Cámara → loop Python    │
+│  (detección + embedding) │
+│                          │
+│  Monitor 2: overlay o    │
+│  publicidad (RF11)       │
+└───────────┬──────────────┘
+            │ vector a verificar (D15)
+            ▼
+┌──────────────────────────┐        ┌──────────────────────────┐
+│  API clientes de curso    │        │  API practicantes         │
+│  (sistema externo propio) │        │  (sistema externo propio) │
+└───────────┬──────────────┘        └───────────┬──────────────┘
+            │ coincide / no coincide + identidad (nombre, id, tipo)
+            └──────────────────┬──────────────────┘
+                                ▼
+                  ┌──────────────────────────┐
+                  │   BACKEND CENTRAL (D18)   │
+                  │   FastAPI + PostgreSQL    │
+                  │   - solo eventos_asistencia│
+                  │   - aplica RF6/RF7/RF9/RF10│
+                  │   - cierre automático 23h  │
+                  └──────────────────────────┘
+```
+
+**Modelo de datos final (reemplaza D7):**
+
+```
+eventos_asistencia
+  id                   serial PK
+  persona_externa_id   varchar NOT NULL   -- id que devuelve el sistema externo al verificar
+  tipo_persona         enum('practicante', 'cliente_curso') NOT NULL
+  nombre               varchar(120) NOT NULL   -- copiado de la respuesta externa, no es fuente de verdad
+  tipo_evento          enum('entrada', 'salida') NOT NULL
+  marca_tiempo         timestamptz NOT NULL   -- calculada en el servidor
+  cierre_automatico    boolean NOT NULL DEFAULT false
+  creado_en            timestamptz NOT NULL DEFAULT now()
+
+  INDEX idx_eventos_persona_fecha (persona_externa_id, marca_tiempo DESC)
+```
+
+No existe tabla `personas` propia — `persona_externa_id` + `tipo_persona` identifican a la
+persona usando el identificador que ya devuelve el sistema externo al verificar, sin duplicar el
+resto de sus datos. Este sistema nunca es la fuente de verdad de quién es cada persona — solo de
+cuándo entró y salió.
+
+**Resiliencia (reemplaza el alcance de D8):** no hay forma de reconocer sin conexión a las 2 APIs
+externas (eso se pierde con D15). Lo que sí se mantiene: si la verificación fue exitosa pero
+falla el registro del evento en el backend central, ese evento se encola localmente en el kiosco
+y se reintenta — resiliencia acotada a esa única ventana, no al reconocimiento completo.
+
 ### Cierre de la Fase 0b
 
 Documentación pura, igual que la Fase 0 — ningún archivo de código fue escrito.
@@ -413,6 +495,7 @@ Documentación pura, igual que la Fase 0 — ningún archivo de código fue escr
   no un equipo dedicado).
 - Fuente y formato de los videos publicitarios para RF11 (¿local, streaming, actualizable por
   BeatC?).
-- Diseño detallado de base de datos (tablas, migraciones) — próxima fase.
+- Migraciones concretas (Alembic) para el esquema de `eventos_asistencia` de D18 — la forma ya
+  está decidida, falta implementarla.
 - Plan de implementación por fases (scaffolding backend/kiosco, motor facial, integración,
   pruebas, despliegue).

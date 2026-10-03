@@ -32,9 +32,14 @@ fase posterior:
 ## Requisitos funcionales
 
 **RF1 — Registro previo de personas**
-El sistema debe contar con una base de datos de personas previamente registradas, cuyo rostro
-fue procesado y almacenado como un vector biométrico (embedding) de referencia. Ese vector es la
-base contra la cual se compara, en tiempo real, cualquier rostro capturado por la cámara.
+Debe existir una base de datos de personas previamente registradas, cuyo rostro fue procesado y
+almacenado como un vector biométrico (embedding) de referencia. Ese vector es la base contra la
+cual se compara, en tiempo real, cualquier rostro capturado por la cámara.
+
+**Aclaración [Añadido]:** esa base de datos de referencia **no la guarda este sistema** — vive en
+los 2 sistemas externos de BeatC (clientes de curso y practicantes), cada uno dueño de sus
+propios registros. Este sistema nunca accede a ella directamente ni guarda una copia: calcula el
+vector del rostro capturado y lo envía a verificar por API (ver `PROCESO.md`).
 
 **RF2 — Identificación automática en tiempo real**
 El sistema debe analizar de forma continua el flujo de video de una cámara, detectar rostros y
