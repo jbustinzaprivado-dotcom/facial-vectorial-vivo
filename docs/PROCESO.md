@@ -127,6 +127,15 @@ muestra igual que un rostro no registrado (RF4), sin importar que sí sea una pe
 Solo cuentan para este límite los registros que efectivamente quedan guardados como evento
 (confirmado con el equipo) — un intento bloqueado por el cooldown de RF9 no suma al conteo.
 
+**RF11 — Pantalla publicitaria en reposo [Añadido]**
+El segundo monitor está ubicado en la puerta del negocio: además de mostrar el reconocimiento,
+funciona como señalización digital. En estado de espera (sin rostro detectado), la pantalla
+muestra a pantalla completa videos publicitarios de BeatC en loop. En cuanto se detecta un
+rostro, la pantalla cambia a pantalla completa de escaneo/resultado (RF2-RF3); al volver al
+estado de espera, retoma la publicidad. Confirmado con el equipo: alternancia a pantalla
+completa, no división fija de pantalla — mayor impacto visual en cada modo, sin dividir la
+atención.
+
 ### D11 — RF9/RF10 se verifican en el backend central, no en el kiosco
 
 Mismo criterio ya establecido para la decisión entrada/salida (sección de arquitectura del
@@ -302,11 +311,108 @@ desarrollo. El repositorio se creó vacío (`jbustinzaprivado-dotcom/facial-vect
 documento consolida los requisitos funcionales y el análisis técnico acordados antes de empezar
 a programar.
 
+---
+
+## Fase 0b — Ampliación de contexto real: entorno, integración externa y restricciones de BeatC
+
+Información que BeatC entregó después de cerrar la Fase 0, con implicancias reales de
+arquitectura. Misma regla de siempre: no se borra nada de lo anterior — se anota qué decisión
+corrige cada punto nuevo, y por qué.
+
+### D14 — Entorno físico real: no es un kiosco dedicado — corrige D2
+
+D2 asumía un equipo físico de un solo propósito. La realidad es distinta: la cámara y el segundo
+monitor están conectados a la **PC de recepción**, una computadora de uso general que la
+recepcionista ya usa para su propio trabajo en su monitor principal. Este sistema corre como
+proceso secundario en esa misma PC, proyectando solo al segundo monitor (más alejado, de cara al
+cliente escaneado).
+
+Implicancias de diseño que esto agrega sobre D2:
+- No puede asumir que tiene la PC para sí solo — debe correr con bajo consumo de CPU/memoria para
+  no afectar el trabajo de la recepcionista en el monitor principal.
+- No debe tomar el foco de teclado/mouse del sistema operativo ni interferir con otras ventanas —
+  se limita a dibujar en su propia ventana, anclada al segundo monitor.
+- Sigue siendo una sola máquina local (no cambia que el procesamiento es local, no en la nube),
+  pero deja de ser una máquina *dedicada*.
+
+### D15 — Arquitectura de verificación: sin caché local, el sistema externo decide — corrige D4
+
+D4 asumía que este sistema cachea los vectores de referencia y compara localmente. BeatC planteó
+un principio más estricto: **este sistema nunca accede a la base de datos del otro sistema** —
+solo envía el vector recién capturado, y es el sistema externo quien compara y devuelve si
+coincide o no.
+
+| | Local (D4 original) | Remota (propuesta por BeatC) |
+|---|---|---|
+| Dónde compara | Este sistema, contra una caché propia | El sistema externo, contra su propia base |
+| Copia de datos biométricos | Sí — este sistema guarda una copia | No — este sistema nunca la tiene |
+| Funciona sin conexión | Sí (D8) | No — cada reconocimiento depende de la red |
+| Requisito del sistema externo | Exponer sus vectores para descarga | Exponer un endpoint "verificar este vector" |
+
+**Recomendación: la opción remota es la más consistente con el principio que BeatC planteó, y es
+viable** — con dos condiciones pendientes de confirmar con quien mantiene los sistemas externos:
+(1) que expongan un endpoint de verificación por vector (hoy no se sabe si ya existe), y (2)
+aceptar que sin conexión a esas APIs, este sistema no puede reconocer a nadie — se pierde la
+resiliencia offline de D8. **Pendiente de decisión final del equipo.**
+
+### D16 — Dos sistemas externos, no uno — corrige D9 y RF8
+
+D9 asumía un solo sistema externo (el de practicantes). BeatC confirmó que son **dos sistemas
+separados, cada uno con su propia API**: uno para clientes del curso, otro para practicantes.
+Ninguno de los dos es accesible directamente por este sistema (D15) — solo mediante su API.
+
+> **Corrección a RF8:** donde decía que solo los practicantes se gestionan en un sistema externo,
+> ahora: **ambos** tipos de persona (practicantes y clientes del curso) se gestionan en sistemas
+> externos propios, cada uno con su propia API.
+
+Consecuencia técnica directa de esto combinado con RF2/RF3 (sin filtro por DNI, reconocimiento
+totalmente automático): como el sistema no sabe de antemano si el rostro capturado pertenece a un
+cliente de curso o a un practicante, cada intento de reconocimiento necesitaría consultar **a las
+dos APIs**, salvo que exista (o se construya) un punto de verificación único que cubra ambas
+poblaciones. Pendiente de confirmar con quien mantiene esos dos sistemas.
+
+### D17 — Lenguaje: PHP declarado como requisito; aislamiento vía API hace viable Python para el motor
+
+BeatC indicó que el sistema debe estar desarrollado en PHP, por consistencia con el resto de su
+ecosistema (también en PHP). Pregunta del equipo: ¿causaría problemas de compatibilidad construir
+específicamente el motor de reconocimiento en otro lenguaje, dado que este sistema está aislado y
+solo se comunica por API?
+
+**Respuesta: no, ningún problema de compatibilidad — ese es precisamente el punto de un límite de
+microservicio.** Si este sistema nunca comparte código, proceso ni base de datos con el resto del
+ecosistema PHP, y solo intercambia HTTP, el lenguaje detrás de esa API es invisible para quien la
+consume. El costo real no es técnico, es organizacional: un lenguaje adicional que el equipo debe
+saber mantener, y un segundo pipeline de despliegue.
+
+El costo real de forzar esto en PHP: la única vía para YuNet+SFace nativo en PHP es
+`php-opencv`, una extensión nativa de nicho (confirmada que soporta estos modelos en una
+investigación de otra conversación, pero con mucho menos mantenimiento y comunidad que el stack
+Python ya validado en D3) — mayor riesgo de mantenimiento a largo plazo para un sistema
+biométrico en producción.
+
+**Recomendación:** motor de reconocimiento en Python (D3, sin cambios) detrás de una API HTTP;
+el resto del ecosistema de BeatC permanece en PHP. **Pendiente de decisión final del equipo** —
+si hay un mandato organizacional de PHP sin excepciones, `php-opencv` es viable pero con más
+riesgo.
+
+### Cierre de la Fase 0b
+
+Documentación pura, igual que la Fase 0 — ningún archivo de código fue escrito.
+
 ### Pendiente
 
-- Especificaciones concretas de la API externa de practicantes (autenticación, endpoints,
-  frecuencia de sincronización razonable).
-- Selección final de hardware concreto (modelo exacto de mini-PC, modelo de cámara).
+- Especificaciones concretas de las dos APIs externas (autenticación, endpoints, frecuencia de
+  sincronización, y si exponen o no un endpoint de verificación por vector — D15).
+- Decisión final: ¿verificación local con caché (D4) o remota sin caché (D15)? Recomendación
+  dada, decisión pendiente del equipo.
+- Decisión final: ¿motor en Python tras API, o todo en PHP con `php-opencv` (D17)? Recomendación
+  dada, decisión pendiente del equipo.
+- Si hace falta un punto de verificación único para las dos poblaciones (D16), o si este sistema
+  debe consultar ambas APIs en cada intento.
+- Selección final de hardware concreto — ahora en contexto de D14 (PC de recepción compartida,
+  no un equipo dedicado).
+- Fuente y formato de los videos publicitarios para RF11 (¿local, streaming, actualizable por
+  BeatC?).
 - Diseño detallado de base de datos (tablas, migraciones) — próxima fase.
 - Plan de implementación por fases (scaffolding backend/kiosco, motor facial, integración,
   pruebas, despliegue).

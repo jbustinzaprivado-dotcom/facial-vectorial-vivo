@@ -42,6 +42,10 @@ compararlos —mediante operaciones vectoriales— contra los vectores almacenad
 cámara debe existir una pantalla que muestre en vivo el rostro capturado y el resultado de la
 verificación.
 
+**Aclaración [Añadido]:** el sistema no solicita ni usa ningún identificador (DNI u otro) para
+acotar la búsqueda antes de comparar — la comparación es automática contra toda la población
+registrada (clientes de curso + practicantes), sin ningún paso manual previo.
+
 **RF3 — Procesamiento de una persona a la vez**
 El sistema procesa exclusivamente un rostro a la vez. Es una limitación intencional: garantiza
 un flujo completamente automático y secuencial, sin selección manual entre varias personas
@@ -84,14 +88,16 @@ marca de cierre de jornada.
 El sistema debe reconocer distintos tipos de persona, cada uno con sus propias características
 de permanencia en la instalación:
 - **Practicantes:** realizan una jornada diaria de 2 a 12 horas. Su información se gestiona y
-  actualiza a través de un sistema externo ya existente, con el cual este proyecto se integra
-  mediante API.
+  actualiza a través de un sistema externo propio, con su propia API.
 - **Clientes del curso:** personas que pagaron un curso específico y permanecen entre 2 y 8
-  horas dentro del local mientras lo cursan.
+  horas dentro del local mientras lo cursan. Su información también se gestiona en un sistema
+  externo propio, con su propia API — distinto del de practicantes.
 
 Ambos tipos de persona conviven dentro de la misma instalación de **BeatC**: los clientes de
 curso asisten a aprender el curso que pagaron, mientras que los practicantes desarrollan
-software, diseño u otras funciones de apoyo a la empresa.
+software, diseño u otras funciones de apoyo a la empresa. Este sistema **nunca accede
+directamente** a la base de datos de ninguno de los dos sistemas externos — toda interacción
+ocurre exclusivamente a través de sus APIs (ver `PROCESO.md`).
 
 **RF9 — Tiempo de espera entre registros (cooldown)**
 Una vez que el sistema registra exitosamente a una persona (su entrada), debe esperar al menos
@@ -108,6 +114,13 @@ sistema deja de reconocerla por el resto del día: cualquier intento posterior s
 muestra igual que un rostro no registrado (RF4), sin importar que sí sea una persona conocida.
 Solo cuentan para este límite los registros que efectivamente quedan guardados como evento — un
 intento bloqueado por el cooldown de RF9 no suma al conteo.
+
+**RF11 — Pantalla publicitaria en reposo**
+El segundo monitor está ubicado en la puerta del negocio: además de mostrar el reconocimiento,
+funciona como señalización digital. En estado de espera (sin rostro detectado), la pantalla
+muestra a pantalla completa videos publicitarios de BeatC en loop. En cuanto se detecta un
+rostro, la pantalla cambia a pantalla completa de escaneo/resultado; al volver al estado de
+espera, retoma la publicidad.
 
 ## Resumen del ciclo operativo
 
