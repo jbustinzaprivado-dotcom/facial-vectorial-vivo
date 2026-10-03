@@ -64,8 +64,12 @@ Flujo esperado:
 1. La persona se ubica frente a la cámara.
 2. Ve su propio rostro en el monitor contiguo a la cámara (retroalimentación visual en vivo).
 3. El sistema analiza el rostro y lo compara contra la base de datos.
-4. Si hay coincidencia, se muestra en pantalla: nombre, DNI, tipo de evento registrado (entrada
-   o salida — ver RF6) y fecha/hora exacta del análisis.
+4. Si hay coincidencia, se muestra en pantalla: nombre, tipo de evento registrado (entrada o
+   salida — ver RF6) y fecha/hora exacta del análisis.
+
+**Aclaración [Añadido]:** el DNI **nunca** se muestra en pantalla — es información sensible y el
+monitor 2 está ubicado en la puerta del negocio, visible públicamente (RF11). Solo se muestran
+nombre, tipo de evento y fecha/hora.
 5. Transcurridos 3 segundos desde que se muestra el resultado, el sistema vuelve
    automáticamente a su estado de espera inicial, listo para la siguiente persona.
 
@@ -85,8 +89,8 @@ a cada reconocimiento exitoso:
 - El primer reconocimiento exitoso del día para una persona se registra como **entrada**.
 - Un reconocimiento exitoso posterior, el mismo día, para esa misma persona, se registra como
   **salida**.
-La pantalla debe reflejar claramente cuál de los dos eventos fue registrado, junto con nombre,
-DNI y fecha/hora.
+La pantalla debe reflejar claramente cuál de los dos eventos fue registrado, junto con nombre y
+fecha/hora (nunca el DNI — ver aclaración en RF3).
 
 **RF7 — Cierre automático de jornada**
 Si una persona registró su entrada pero no se logra capturar su salida durante el resto del día,
@@ -278,7 +282,7 @@ ANÁLISIS (envía el vector a verificar a las APIs externas — D15, ya no hay c
    ├─ coincide → ¿ya tiene entrada hoy sin salida?
    │      no  → registra ENTRADA
    │      sí  → registra SALIDA
-   │      pantalla: nombre, DNI, tipo de evento, fecha/hora
+   │      pantalla: nombre, tipo de evento, fecha/hora (nunca DNI — dato sensible)
    │
    └─ no coincide → pantalla: "no registrado"
    │
