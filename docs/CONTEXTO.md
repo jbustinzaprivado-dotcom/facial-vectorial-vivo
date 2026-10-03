@@ -117,6 +117,14 @@ reconoce (no la trata como desconocida), pero no genera un nuevo evento: en su l
 mensaje indicando que ya está registrada y la hora a partir de la cual puede volver a hacerlo
 (p. ej. "Ya registrado, intente su salida después de las HH:MM").
 
+**Punto de mejora futura [Añadido]:** los 30 minutos están calibrados contra el rango de RF8
+(estancia mínima esperada: 2 horas) — suficientemente cortos para no confundirse con una
+estancia real, suficientemente largos para no interferir con la salida de nadie. El caso límite
+que queda sin resolver: una visita real más corta que esos 30 minutos no puede registrar su
+salida exacta, y termina dependiendo del cierre automático de las 23:00 (RF7) en su lugar. Es un
+caso fuera del rango normal que la propia empresa definió (2-12h / 2-8h), aceptado como
+trade-off por ahora.
+
 **RF10 — Un solo ciclo de entrada/salida por día**
 Cada persona registra como máximo **una entrada y una salida por día** — no hay un límite de
 "intentos" a contar, simplemente no existe un tercer evento posible. Una vez que una persona ya

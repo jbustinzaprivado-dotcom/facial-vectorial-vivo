@@ -124,6 +124,16 @@ mensaje indicando que ya está registrada y la hora a partir de la cual puede vo
 (confirmado con el equipo: no se usa el mensaje de "no registrado" para este caso, para no
 confundir a la persona haciéndole creer que no está en el sistema).
 
+> **Punto de mejora futura [Añadido]:** se evaluó si 30 minutos es un valor bien calibrado para
+> su propósito (evitar que un reingreso accidental a cámara se registre como salida). Los 30
+> minutos caen entre dos límites reales tomados de RF8: por abajo, más largos que un alejamiento
+> breve típico (conversar con recepción, salir un momento — pocos minutos, rara vez más de
+> 15-20); por arriba, bastante más cortos que la estancia mínima esperada (2 horas = 120 min), así
+> que no interfieren con una salida real. **Caso límite sin resolver:** una visita real más corta
+> que 30 minutos (fuera del rango normal 2-12h/2-8h que define RF8) no puede registrar su salida
+> exacta — queda dependiendo del cierre automático de las 23:00 (RF7), con una hora que no
+> refleja lo que pasó. Aceptado como trade-off por ahora, no bloqueante.
+
 **RF10 — Un solo ciclo de entrada/salida por día [corregido]**
 
 > **Corrección:** la versión original de RF10 limitaba a un máximo de 3 "intentos" de registro
