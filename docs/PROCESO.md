@@ -120,12 +120,22 @@ mensaje indicando que ya está registrada y la hora a partir de la cual puede vo
 (confirmado con el equipo: no se usa el mensaje de "no registrado" para este caso, para no
 confundir a la persona haciéndole creer que no está en el sistema).
 
-**RF10 — Límite diario de registros [Añadido]**
-Una persona no puede registrarse más de **3 veces** en el mismo día. Al alcanzar ese límite, el
-sistema deja de reconocerla por el resto del día: cualquier intento posterior se trata y se
-muestra igual que un rostro no registrado (RF4), sin importar que sí sea una persona conocida.
-Solo cuentan para este límite los registros que efectivamente quedan guardados como evento
-(confirmado con el equipo) — un intento bloqueado por el cooldown de RF9 no suma al conteo.
+**RF10 — Un solo ciclo de entrada/salida por día [corregido]**
+
+> **Corrección:** la versión original de RF10 limitaba a un máximo de 3 "intentos" de registro
+> contados por día. El equipo eliminó ese concepto de conteo — no hace falta, porque RF6 ya
+> implica un límite natural: solo hay una entrada y una salida posibles por día, nunca un tercer
+> evento. Se deja tachado, no borrado, como registro de qué se pensó antes:
+> ~~Una persona no puede registrarse más de 3 veces en el mismo día. Al alcanzar ese límite, el
+> sistema deja de reconocerla por el resto del día...~~
+
+Cada persona registra como máximo **una entrada y una salida por día** — no hay un límite de
+"intentos" a contar, simplemente no existe un tercer evento posible. Una vez que una persona ya
+tiene su entrada y su salida registradas en el día, si vuelve a aparecer frente a la cámara el
+sistema sí la reconoce (no la trata como desconocida), pero no genera un nuevo evento: muestra un
+mensaje indicando que ya completó su registro de hoy — nunca "no registrado" (confirmado con el
+equipo, mismo criterio que RF9: no confundir a una persona conocida haciéndole creer que no está
+en el sistema).
 
 **RF11 — Pantalla publicitaria en reposo [Añadido]**
 El segundo monitor está ubicado en la puerta del negocio: además de mostrar el reconocimiento,
@@ -141,9 +151,9 @@ atención.
 Mismo criterio ya establecido para la decisión entrada/salida (sección de arquitectura del
 análisis técnico): el kiosco solo reporta "persona X reconocida a las HH:MM:SS"; es el backend
 central quien consulta el historial real de eventos de esa persona en el día y decide si el
-registro se guarda, si corresponde mostrar el mensaje de cooldown (RF9), o si ya alcanzó el
-límite diario (RF10). Esto evita inconsistencias si el kiosco estuvo offline y su estado local
-quedó desactualizado.
+registro se guarda, si corresponde mostrar el mensaje de cooldown (RF9), o si ya completó su
+ciclo de entrada/salida del día (RF10). Esto evita inconsistencias si el kiosco estuvo offline y
+su estado local quedó desactualizado.
 
 ### D12 — Verificar asistencia a una clase específica queda fuera de este sistema
 

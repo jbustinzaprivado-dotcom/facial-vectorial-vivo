@@ -113,12 +113,13 @@ reconoce (no la trata como desconocida), pero no genera un nuevo evento: en su l
 mensaje indicando que ya está registrada y la hora a partir de la cual puede volver a hacerlo
 (p. ej. "Ya registrado, intente su salida después de las HH:MM").
 
-**RF10 — Límite diario de registros**
-Una persona no puede registrarse más de **3 veces** en el mismo día. Al alcanzar ese límite, el
-sistema deja de reconocerla por el resto del día: cualquier intento posterior se trata y se
-muestra igual que un rostro no registrado (RF4), sin importar que sí sea una persona conocida.
-Solo cuentan para este límite los registros que efectivamente quedan guardados como evento — un
-intento bloqueado por el cooldown de RF9 no suma al conteo.
+**RF10 — Un solo ciclo de entrada/salida por día**
+Cada persona registra como máximo **una entrada y una salida por día** — no hay un límite de
+"intentos" a contar, simplemente no existe un tercer evento posible. Una vez que una persona ya
+tiene su entrada y su salida registradas en el día, si vuelve a aparecer frente a la cámara el
+sistema sí la reconoce (no la trata como desconocida), pero no genera un nuevo evento: muestra un
+mensaje indicando que ya completó su registro de hoy — nunca el mensaje de "no registrado", para
+no confundirla haciéndole creer que no está en el sistema (mismo criterio que RF9).
 
 **RF11 — Pantalla publicitaria en reposo**
 El segundo monitor está ubicado en la puerta del negocio: además de mostrar el reconocimiento,
